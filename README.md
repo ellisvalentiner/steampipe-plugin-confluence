@@ -1,11 +1,11 @@
-# Atlassian Plugin for Steampipe
+# Confluence Plugin for Steampipe
 
 ## Quick start
 
 Install the plugin with Steampipe:
 
 ```sh
-steampipe plugin install ellisvalentiner/atlassian
+steampipe plugin install ellisvalentiner/confluence
 ```
 
 Run a query:
@@ -30,8 +30,8 @@ Prerequisites:
 Clone:
 
 ```sh
-git clone https://github.com/ellisvalentiner/steampipe-plugin-atlassian.git
-cd steampipe-plugin-atlassian
+git clone https://github.com/ellisvalentiner/steampipe-plugin-confluence.git
+cd steampipe-plugin-confluence
 ```
 
 Build, which automatically installs the new version to your `~/.steampipe/plugins` directory:
@@ -44,12 +44,12 @@ Configure the plugin:
 
 ```sh
 cp config/* ~/.steampipe/config
-nano ~/.steampipe/config/atlassian.spc
+nano ~/.steampipe/config/confluence.spc
 ```
 
 Try it!
 
 ```sh
 steampipe query
-> .inspect atlassian
+> .inspect confluence
 ```
