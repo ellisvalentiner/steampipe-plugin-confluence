@@ -114,7 +114,7 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 		Expand: []string{"childTypes.all", "body.storage"},
 	}
 
-	for true {
+	for {
 		page, _, err := instance.Content.Gets(context.Background(), options, startAt, maxResults)
 		if err != nil {
 			return nil, err
