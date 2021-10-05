@@ -17,6 +17,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		},
 		TableMap: map[string]*plugin.Table{
 			"confluence_content": tableConfluenceContent(),
+			"confluence_content_body": tableConfluenceContentBody(),
 		},
 	}
 	return p
