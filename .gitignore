@@ -19,3 +19,5 @@
 
 # Environment
 .env
+
+dist/
