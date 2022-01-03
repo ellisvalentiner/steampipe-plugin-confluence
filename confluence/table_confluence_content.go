@@ -7,7 +7,6 @@ import (
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -38,34 +37,11 @@ func tableConfluenceContent() *plugin.Table {
 				Name:        "child_types",
 				Type:        proto.ColumnType_JSON,
 				Description: "Shows whether a piece of content has attachments, comments, or child pages. Note, this doesn't actually contain the child objects.",
-				Transform:   transform.FromField("Fields.childTypes"),
-			},
-			{
-				Name:        "expandable",
-				Type:        proto.ColumnType_JSON,
-				Description: "",
-				Transform:   transform.FromField("Fields._expandable"),
-			},
-			{
-				Name:        "extensions",
-				Type:        proto.ColumnType_JSON,
-				Description: "",
-			},
-			{
-				Name:        "metadata",
-				Type:        proto.ColumnType_JSON,
-				Description: "Metadata object for page, blogpost, comment content",
 			},
 			{
 				Name:        "links",
 				Type:        proto.ColumnType_JSON,
 				Description: "",
-				Transform:   transform.FromField("Fields._links"),
-			},
-			{
-				Name:        "operations",
-				Type:        proto.ColumnType_JSON,
-				Description: "An operation and the target entity that it applies to, e.g. create page",
 			},
 			{
 				Name:        "space",
@@ -121,7 +97,7 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	// maxResults := 50
 
 	options := &confluence.GetContentOptionsScheme{
-		Expand: []string{"childTypes.all", "body.storage"},
+		Expand: []string{"childTypes.all", "body.storage", "space", "version"},
 	}
 
 	pagesLeft := true
@@ -160,7 +136,7 @@ func getContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	id := quals["id"].GetStringValue()
 	logger.Warn("getContent", "id", id)
 
-	expand := []string{"any"}
+	expand := []string{"childTypes.all", "body.storage", "space", "version"}
 	version := 1
 
 	content, _, err := instance.Content.Get(context.Background(), id, expand, version)

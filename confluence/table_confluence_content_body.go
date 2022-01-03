@@ -23,12 +23,12 @@ func tableConfluenceContentBody() *plugin.Table {
 			{
 				Name:        "id",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The ID of the content.",
 			},
 			{
 				Name:        "view",
 				Type:        proto.ColumnType_JSON,
-				Description: "",
+				Description: "The body of content in view format.",
 			},
 			{
 				Name:        "export_view",
@@ -43,7 +43,7 @@ func tableConfluenceContentBody() *plugin.Table {
 			{
 				Name:        "storage",
 				Type:        proto.ColumnType_JSON,
-				Description: "",
+				Description: "The body of content in storage format",
 			},
 			{
 				Name:        "editor2",
