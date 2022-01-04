@@ -33,7 +33,7 @@ func tableConfluenceContentBodyStorage() *plugin.Table {
 			{
 				Name:        "value",
 				Type:        proto.ColumnType_STRING,
-				Description: "The the content body.",
+				Description: "The content body.",
 			},
 		},
 	}
