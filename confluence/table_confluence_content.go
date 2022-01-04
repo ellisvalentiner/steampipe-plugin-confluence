@@ -7,6 +7,7 @@ import (
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -29,24 +30,15 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "Automatically assigned when the content is created",
 			},
 			{
-				Name:        "body",
-				Type:        proto.ColumnType_JSON,
-				Description: "The body of the content.",
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Description: "The content title",
 			},
 			{
-				Name:        "child_types",
-				Type:        proto.ColumnType_JSON,
-				Description: "Shows whether a piece of content has attachments, comments, or child pages. Note, this doesn't actually contain the child objects.",
-			},
-			{
-				Name:        "links",
-				Type:        proto.ColumnType_JSON,
-				Description: "",
-			},
-			{
-				Name:        "space",
-				Type:        proto.ColumnType_JSON,
+				Name:        "space_key",
+				Type:        proto.ColumnType_STRING,
 				Description: "The space containing the content",
+				Transform:   transform.FromField("Space.Key"),
 			},
 			{
 				Name:        "status",
@@ -54,19 +46,20 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "The content status",
 			},
 			{
-				Name:        "title",
-				Type:        proto.ColumnType_STRING,
-				Description: "The content title",
-			},
-			{
 				Name:        "type",
 				Type:        proto.ColumnType_STRING,
 				Description: "The content type (page, blogpost, attachment or content)",
 			},
 			{
-				Name:        "version",
-				Type:        proto.ColumnType_JSON,
+				Name:        "version_number",
+				Type:        proto.ColumnType_INT,
 				Description: "The content version",
+				Transform:   transform.FromField("Version.Number"),
+			},
+			{
+				Name:        "body",
+				Type:        proto.ColumnType_JSON,
+				Description: "The body of the content.",
 			},
 		},
 	}
