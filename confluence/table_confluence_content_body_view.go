@@ -48,8 +48,8 @@ func listContentBodyView(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	content := h.Item.(*confluence.ContentScheme)
 	c := contentBody{
 		ID:             content.ID,
-		Representation:	content.Body.View.Representation,
-		Value:					content.Body.View.Value,
+		Representation: content.Body.View.Representation,
+		Value:          content.Body.View.Value,
 	}
 	d.StreamListItem(ctx, c)
 

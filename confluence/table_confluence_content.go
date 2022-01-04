@@ -56,11 +56,6 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "The content version",
 				Transform:   transform.FromField("Version.Number"),
 			},
-			// {
-			// 	Name:        "body",
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Description: "The body of the content.",
-			// },
 		},
 	}
 }
@@ -101,7 +96,7 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 		for _, content := range page.Results {
 			d.StreamListItem(ctx, content)
 			if plugin.IsCancelled(ctx) {
-				return  nil, nil
+				return nil, nil
 			}
 		}
 		if page.Size < page.Limit {

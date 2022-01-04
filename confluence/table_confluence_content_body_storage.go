@@ -41,9 +41,9 @@ func tableConfluenceContentBodyStorage() *plugin.Table {
 
 // structs
 type contentBody struct {
-	ID              string	`json:"id,omitempty"`
-	Representation	string	`json:"representation,omitempty"`
-	Value						string	`json:"value,omitempty"`
+	ID             string `json:"id,omitempty"`
+	Representation string `json:"representation,omitempty"`
+	Value          string `json:"value,omitempty"`
 }
 
 //// LIST FUNCTIONS
@@ -55,8 +55,8 @@ func listContentBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.
 	content := h.Item.(*confluence.ContentScheme)
 	c := contentBody{
 		ID:             content.ID,
-		Representation:	content.Body.Storage.Representation,
-		Value:					content.Body.Storage.Value,
+		Representation: content.Body.Storage.Representation,
+		Value:          content.Body.Storage.Value,
 	}
 	d.StreamListItem(ctx, c)
 

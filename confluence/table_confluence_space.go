@@ -88,7 +88,7 @@ func listSpace(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		for _, content := range page.Results {
 			d.StreamListItem(ctx, content)
 			if plugin.IsCancelled(ctx) {
-				return  nil, nil
+				return nil, nil
 			}
 		}
 		if page.Size < page.Limit {
