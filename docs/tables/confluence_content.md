@@ -10,6 +10,7 @@ Content in a Confluence instance.
 select
   id,
   title,
+  space_key,
   status,
   type
 from
