@@ -56,11 +56,11 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "The content version",
 				Transform:   transform.FromField("Version.Number"),
 			},
-			{
-				Name:        "body",
-				Type:        proto.ColumnType_JSON,
-				Description: "The body of the content.",
-			},
+			// {
+			// 	Name:        "body",
+			// 	Type:        proto.ColumnType_JSON,
+			// 	Description: "The body of the content.",
+			// },
 		},
 	}
 }
@@ -87,10 +87,9 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	}
 
 	startAt := 0
-	// maxResults := 50
 
 	options := &confluence.GetContentOptionsScheme{
-		Expand: []string{"childTypes.all", "body.storage", "space", "version"},
+		Expand: []string{"childTypes.all", "body.storage", "body.view", "space", "version"},
 	}
 
 	pagesLeft := true
@@ -129,7 +128,7 @@ func getContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	id := quals["id"].GetStringValue()
 	logger.Warn("getContent", "id", id)
 
-	expand := []string{"childTypes.all", "body.storage", "space", "version"}
+	expand := []string{"childTypes.all", "body.storage", "body.view", "space", "version"}
 	version := 1
 
 	content, _, err := instance.Content.Get(context.Background(), id, expand, version)
