@@ -1,7 +1,7 @@
 ---
 organization: ellisvalentiner
 category: ["software development"]
-icon_url: ""
+icon_url: "/images/plugins/ellisvalentiner/confluence.svg"
 brand_color: "#2684FF"
 display_name: "Confluence"
 short_name: "confluence"
