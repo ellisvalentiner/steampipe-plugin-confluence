@@ -7,7 +7,7 @@ display_name: "Confluence"
 short_name: "confluence"
 description: "Steampipe plugin for querying pages, spaces, and more from Confluence."
 og_description: "Query Confluence with SQL! Open source CLI. No DB required."
-og_image: ""
+og_image: "/images/plugins/ellisvalentiner/confluence-social-graphic.png"
 ---
 
 # Confluence + Steampipe
