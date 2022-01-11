@@ -2,25 +2,33 @@
 # Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
     - go generate ./...
 builds:
   - env:
       - CGO_ENABLED=0
+      - GO111MODULE=on
     goos:
       - linux
       - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: darwin # docs suggest that darwin arm64 should compile, but doesnt...
+        goarch: arm64
+
+    id: "steampipe-confluence"
+    binary: "{{ .ProjectName }}.plugin"
+
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+  - format: gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - none*
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
+  algorithm: sha256
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
@@ -29,78 +37,3 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-dockers:
-  - image_templates:
-    - ghcr.io/ellisvalentiner/steampipe-plugin-confluence:{{ .Tag }}
-    use: buildx
-    goarch: amd64
-    build_flag_templates:
-    - --platform=linux/amd64
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.description={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.source=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.version={{ .Version }}
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.licenses=MIT
-  - image_templates:
-    - ghcr.io/ellisvalentiner/steampipe-plugin-confluence:{{ .Tag }}
-    goos: linux
-    goarch: arm64
-    use: buildx
-    build_flag_templates:
-    - --platform=linux/arm64
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.description={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.source=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.version={{ .Version }}
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.licenses=MIT
-  - image_templates:
-    - ghcr.io/ellisvalentiner/steampipe-plugin-confluence:{{ .Tag }}
-    goos: linux
-    goarch: 386
-    use: buildx
-    build_flag_templates:
-    - --platform=linux/arm64
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.description={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.source=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.version={{ .Version }}
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.licenses=MIT
-  - image_templates:
-    - ghcr.io/ellisvalentiner/steampipe-plugin-confluence:{{ .Tag }}
-    goos: darwin
-    goarch: amd64
-    use: buildx
-    build_flag_templates:
-    - --platform=linux/amd64
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.description={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.source=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.version={{ .Version }}
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.licenses=MIT
-  - image_templates:
-    - ghcr.io/ellisvalentiner/steampipe-plugin-confluence:{{ .Tag }}
-    goos: darwin
-    goarch: arm64
-    use: buildx
-    build_flag_templates:
-    - --platform=linux/arm64
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.description={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.source=https://github.com/ellisvalentiner/{{ .ProjectName }}
-    - --label=org.opencontainers.image.version={{ .Version }}
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.licenses=MIT
