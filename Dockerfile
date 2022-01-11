@@ -1,3 +1,3 @@
 FROM scratch
-ENTRYPOINT ["/steampipe-plugin-confluence"]
-COPY steampipe-plugin-confluence /
+ENTRYPOINT ["/steampipe-plugin-confluence.plugin"]
+COPY steampipe-plugin-confluence.plugin /
