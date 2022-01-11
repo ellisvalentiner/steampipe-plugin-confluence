@@ -30,47 +30,15 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "Automatically assigned when the content is created",
 			},
 			{
-				Name:        "body",
-				Type:        proto.ColumnType_JSON,
-				Description: "The body of the content.",
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Description: "The content title",
 			},
 			{
-				Name:        "child_types",
-				Type:        proto.ColumnType_JSON,
-				Description: "Shows whether a piece of content has attachments, comments, or child pages. Note, this doesn't actually contain the child objects.",
-				Transform:   transform.FromField("Fields.childTypes"),
-			},
-			{
-				Name:        "expandable",
-				Type:        proto.ColumnType_JSON,
-				Description: "",
-				Transform:   transform.FromField("Fields._expandable"),
-			},
-			{
-				Name:        "extensions",
-				Type:        proto.ColumnType_JSON,
-				Description: "",
-			},
-			{
-				Name:        "metadata",
-				Type:        proto.ColumnType_JSON,
-				Description: "Metadata object for page, blogpost, comment content",
-			},
-			{
-				Name:        "links",
-				Type:        proto.ColumnType_JSON,
-				Description: "",
-				Transform:   transform.FromField("Fields._links"),
-			},
-			{
-				Name:        "operations",
-				Type:        proto.ColumnType_JSON,
-				Description: "An operation and the target entity that it applies to, e.g. create page",
-			},
-			{
-				Name:        "space",
-				Type:        proto.ColumnType_JSON,
+				Name:        "space_key",
+				Type:        proto.ColumnType_STRING,
 				Description: "The space containing the content",
+				Transform:   transform.FromField("Space.Key"),
 			},
 			{
 				Name:        "status",
@@ -78,19 +46,15 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "The content status",
 			},
 			{
-				Name:        "title",
-				Type:        proto.ColumnType_STRING,
-				Description: "The content title",
-			},
-			{
 				Name:        "type",
 				Type:        proto.ColumnType_STRING,
 				Description: "The content type (page, blogpost, attachment or content)",
 			},
 			{
-				Name:        "version",
-				Type:        proto.ColumnType_JSON,
+				Name:        "version_number",
+				Type:        proto.ColumnType_INT,
 				Description: "The content version",
+				Transform:   transform.FromField("Version.Number"),
 			},
 		},
 	}
@@ -107,23 +71,36 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 		return nil, err
 	}
 
-	startAt := 0
-	maxResults := 50
-
-	options := &confluence.GetContentOptionsScheme{
-		Expand: []string{"childTypes.all", "body.storage"},
+	var maxResults int
+	limit := d.QueryContext.Limit
+	if limit != nil {
+		if *limit < int64(100) {
+			maxResults = int(*limit)
+		}
+	} else {
+		maxResults = 100
 	}
 
-	for {
+	startAt := 0
+
+	options := &confluence.GetContentOptionsScheme{
+		Expand: []string{"childTypes.all", "body.storage", "body.view", "space", "version"},
+	}
+
+	pagesLeft := true
+	for pagesLeft {
 		page, _, err := instance.Content.Gets(context.Background(), options, startAt, maxResults)
 		if err != nil {
 			return nil, err
 		}
 		for _, content := range page.Results {
 			d.StreamListItem(ctx, content)
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 		}
 		if page.Size < page.Limit {
-			break
+			pagesLeft = false
 		}
 		startAt += maxResults
 	}
@@ -146,7 +123,7 @@ func getContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	id := quals["id"].GetStringValue()
 	logger.Warn("getContent", "id", id)
 
-	expand := []string{"any"}
+	expand := []string{"childTypes.all", "body.storage", "body.view", "space", "version"}
 	version := 1
 
 	content, _, err := instance.Content.Get(context.Background(), id, expand, version)
