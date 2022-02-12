@@ -3,7 +3,7 @@ module github.com/ellisvalentiner/steampipe-plugin-confluence
 go 1.17
 
 require (
-	github.com/ctreminiom/go-atlassian v1.3.0
+	github.com/ctreminiom/go-atlassian v1.4.2
 	github.com/turbot/steampipe-plugin-sdk v1.8.2
 )
 
@@ -26,6 +26,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.9.1 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/iancoleman/strcase v0.1.2 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-runewidth v0.0.7 // indirect

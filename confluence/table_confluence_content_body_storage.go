@@ -3,7 +3,7 @@ package confluence
 import (
 	"context"
 
-	"github.com/ctreminiom/go-atlassian/confluence"
+	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -52,7 +52,7 @@ func listContentBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.
 	logger := plugin.Logger(ctx)
 	logger.Trace("listContentBody")
 
-	content := h.Item.(*confluence.ContentScheme)
+	content := h.Item.(*model.ContentScheme)
 	c := contentBody{
 		ID:             content.ID,
 		Representation: content.Body.Storage.Representation,

@@ -3,7 +3,7 @@ package confluence
 import (
 	"context"
 
-	"github.com/ctreminiom/go-atlassian/confluence"
+	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -75,7 +75,7 @@ func listSpace(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 
 	startAt := 0
 
-	options := &confluence.GetSpacesOptionScheme{
+	options := &model.GetSpacesOptionScheme{
 		SpaceKeys: nil,
 	}
 
