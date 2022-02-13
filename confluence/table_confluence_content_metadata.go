@@ -3,7 +3,6 @@ package confluence
 import (
 	"context"
 
-	// "github.com/ctreminiom/go-atlassian/confluence"
 	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -13,7 +12,7 @@ import (
 //// TABLE DEFINITION
 func tableConfluenceContentMetadata() *plugin.Table {
 	return &plugin.Table{
-		Name:        "confluence_content_metadata_currentuser",
+		Name:        "confluence_content_metadata",
 		Description: "Information about the current user in relation to the content, including when they last viewed it, modified it, contributed to it, or added it as a favorite.",
 		List: &plugin.ListConfig{
 			ParentHydrate: listContent,
@@ -34,23 +33,21 @@ func tableConfluenceContentMetadata() *plugin.Table {
 	}
 }
 
-
 // structs
 type metadata struct {
-	ID            	string `json:"id,omitempty"`
-	Metadata				*model.MetadataScheme `json:"metadata,omitempty"`
+	ID       string                `json:"id,omitempty"`
+	Metadata *model.MetadataScheme `json:"metadata,omitempty"`
 }
-
 
 //// LIST FUNCTIONS
 func listContentMetadata(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	logger.Trace("listContentMetadataCurrentUser")
+	logger.Trace("listContentMetadata")
 
 	content := h.Item.(*model.ContentScheme)
 	c := metadata{
-		ID:				content.ID,
-		Metadata:	content.Metadata,
+		ID:       content.ID,
+		Metadata: content.Metadata,
 	}
 	d.StreamListItem(ctx, c)
 

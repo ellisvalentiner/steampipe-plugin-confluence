@@ -3,7 +3,6 @@ package confluence
 import (
 	"context"
 
-	// "github.com/ctreminiom/go-atlassian/confluence"
 	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -56,12 +55,12 @@ func tableConfluenceContentVersion() *plugin.Table {
 }
 
 type contentVersion struct {
-	ID            string												`json:"id,omitempty"`
-	By            *model.ContentUserScheme			`json:"by,omitempty"`
-	Number        int                         	`json:"number,omitempty"`
-	When          string                      	`json:"when,omitempty"`
-	Message       string                      	`json:"message,omitempty"`
-	MinorEdit     bool                        	`json:"minorEdit,omitempty"`
+	ID        string                   `json:"id,omitempty"`
+	By        *model.ContentUserScheme `json:"by,omitempty"`
+	Number    int                      `json:"number,omitempty"`
+	When      string                   `json:"when,omitempty"`
+	Message   string                   `json:"message,omitempty"`
+	MinorEdit bool                     `json:"minorEdit,omitempty"`
 }
 
 //// LIST FUNCTIONS
@@ -71,13 +70,13 @@ func listContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	logger.Trace("listContentVersion")
 
 	content := h.Item.(*model.ContentScheme)
-	c := contentVersion {
-		ID:					content.ID,
-		By:					content.Version.By,
-		Number:			content.Version.Number,
-		When:				content.Version.When,
-		Message:		content.Version.Message,
-		MinorEdit:	content.Version.MinorEdit,
+	c := contentVersion{
+		ID:        content.ID,
+		By:        content.Version.By,
+		Number:    content.Version.Number,
+		When:      content.Version.When,
+		Message:   content.Version.Message,
+		MinorEdit: content.Version.MinorEdit,
 	}
 	d.StreamListItem(ctx, c)
 

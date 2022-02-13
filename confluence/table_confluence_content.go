@@ -83,8 +83,11 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 
 	startAt := 0
 
+	quals := d.KeyColumnQuals
 	options := &model.GetContentOptionsScheme{
-		Expand: []string{"childTypes.all", "body.storage", "body.view", "space", "version"},
+		Expand:   []string{"childTypes.all", "body.storage", "body.view", "space", "version"},
+		SpaceKey: quals["space_key"].GetStringValue(),
+		// Status:		quals["status"].GetStringValue(),
 	}
 
 	pagesLeft := true

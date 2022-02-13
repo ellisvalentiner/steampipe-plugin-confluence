@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/ctreminiom/go-atlassian v1.4.2
-	github.com/turbot/steampipe-plugin-sdk v1.8.2
+	github.com/turbot/steampipe-plugin-sdk v1.8.3
 )
 
 require (
