@@ -19,6 +19,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"confluence_content":              tableConfluenceContent(),
 			"confluence_content_body_storage": tableConfluenceContentBodyStorage(),
 			"confluence_content_body_view":    tableConfluenceContentBodyView(),
+			"confluence_content_label":        tableConfluenceContentLabel(),
+			"confluence_content_version":      tableConfluenceContentVersion(),
 			"confluence_space":                tableConfluenceSpace(),
 		},
 	}
