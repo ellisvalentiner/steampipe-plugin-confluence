@@ -19,10 +19,6 @@ func tableConfluenceContentLabel() *plugin.Table {
 			ParentHydrate: listContent,
 			Hydrate:       listContentLabel,
 		},
-		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
-			Hydrate:    getContentLabel,
-		},
 		Columns: []*plugin.Column{
 			{
 				Name:        "id",
@@ -73,36 +69,13 @@ type contentLabel struct {
 	Label     string `json:"label,omitempty"`
 }
 
-//// LIST FUNCTIONS
-
+// LIST FUNCTIONS
 func listContentLabel(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	logger.Trace("listContentLabel")
 
-	instance, err := connect(ctx, d)
-	if err != nil {
-		return nil, err
-	}
-
-	var maxResults int
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(100) {
-			maxResults = int(*limit)
-		}
-	} else {
-		maxResults = 100
-	}
-
-	startAt := 0
 	content := h.Item.(*model.ContentScheme)
-	quals := d.KeyColumnQuals
-	prefix := quals["prefix"].GetStringValue()
-	labels, _, err := instance.Content.Label.Gets(context.Background(), content.ID, prefix, startAt, maxResults)
-	if err != nil {
-		return nil, err
-	}
-	for _, label := range labels.Results {
+	for _, label := range content.Metadata.Labels.Results {
 		row := contentLabel{
 			ID:        label.ID,
 			ContentID: content.ID,
@@ -113,64 +86,7 @@ func listContentLabel(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 			Label:     label.Label,
 		}
 		d.StreamListItem(ctx, row)
-		if plugin.IsCancelled(ctx) {
-			return nil, nil
-		}
 	}
+
 	return nil, nil
-}
-
-//// HYDRATE FUNCTIONS
-
-func getContentLabel(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
-	logger.Trace("getContentLabel")
-
-	instance, err := connect(ctx, d)
-	if err != nil {
-		return nil, err
-	}
-
-	var maxResults int
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(100) {
-			maxResults = int(*limit)
-		}
-	} else {
-		maxResults = 100
-	}
-
-	startAt := 0
-
-	content := h.Item.(*model.ContentScheme)
-	quals := d.KeyColumnQuals
-	logger.Warn("getContentLabel", "quals", quals)
-	contentID := quals["content_id"].GetStringValue()
-	prefix := quals["prefix"].GetStringValue()
-
-	labels, _, err := instance.Content.Label.Gets(context.Background(), contentID, prefix, startAt, maxResults)
-	if err != nil {
-		return nil, err
-	}
-	var rows []contentLabel
-
-	for _, label := range labels.Results {
-		row := contentLabel{
-			ID:        label.ID,
-			ContentID: content.ID,
-			Title:     content.Title,
-			SpaceKey:  content.Space.Key,
-			Prefix:    label.Prefix,
-			Name:      label.Name,
-			Label:     label.Label,
-		}
-		// d.StreamListItem(ctx, row)
-		if plugin.IsCancelled(ctx) {
-			return nil, nil
-		}
-		rows = append(rows, row)
-	}
-
-	return rows, nil
 }

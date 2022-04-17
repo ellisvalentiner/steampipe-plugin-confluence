@@ -64,48 +64,46 @@ func tableConfluenceContent() *plugin.Table {
 
 func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	logger.Trace("listContent")
+	logger.Trace("List confluence content")
 
 	instance, err := connect(ctx, d)
 	if err != nil {
 		return nil, err
 	}
 
-	var maxResults int
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(100) {
-			maxResults = int(*limit)
-		}
+	var limit int
+	if d.QueryContext.Limit != nil {
+		limit = int(limit)
 	} else {
-		maxResults = 100
+		limit = 1000
+	}
+	quals := d.KeyColumnQuals
+	options := &model.GetContentOptionsScheme{
+		Expand:   []string{"childTypes.all", "body.storage", "body.view", "metadata.labels", "space", "version"},
+		SpaceKey: quals["space_key"].GetStringValue(),
 	}
 
 	startAt := 0
-
-	quals := d.KeyColumnQuals
-	options := &model.GetContentOptionsScheme{
-		Expand:   []string{"childTypes.all", "body.storage", "body.view", "space", "version"},
-		SpaceKey: quals["space_key"].GetStringValue(),
-		// Status:		quals["status"].GetStringValue(),
-	}
-
+	pageSize := 25
 	pagesLeft := true
 	for pagesLeft {
-		page, _, err := instance.Content.Gets(context.Background(), options, startAt, maxResults)
+		page, response, err := instance.Content.Gets(context.Background(), options, startAt, pageSize)
 		if err != nil {
-			return nil, err
-		}
-		for _, content := range page.Results {
-			d.StreamListItem(ctx, content)
-			if plugin.IsCancelled(ctx) {
-				return nil, nil
+			logger.Warn("Encountered error", "error", err, "Response", response)
+			return nil, nil
+		} else {
+			logger.Trace("Adding content items", "start", page.Start, "size", page.Size, "links", page.Links)
+			for _, content := range page.Results {
+				d.StreamListItem(ctx, content)
+				if plugin.IsCancelled(ctx) {
+					return nil, nil
+				}
 			}
+			if page.Size < page.Limit || limit <= page.Size {
+				pagesLeft = false
+			}
+			startAt += pageSize
 		}
-		if page.Size < page.Limit {
-			pagesLeft = false
-		}
-		startAt += maxResults
 	}
 	return nil, nil
 }
@@ -114,7 +112,7 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 
 func getContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	logger.Trace("getContent")
+	logger.Trace("Get confluence content")
 
 	instance, err := connect(ctx, d)
 	if err != nil {

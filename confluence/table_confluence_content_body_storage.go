@@ -53,12 +53,12 @@ func listContentBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.
 	logger.Trace("listContentBody")
 
 	content := h.Item.(*model.ContentScheme)
-	c := contentBody{
+	row := contentBody{
 		ID:             content.ID,
 		Representation: content.Body.Storage.Representation,
 		Value:          content.Body.Storage.Value,
 	}
-	d.StreamListItem(ctx, c)
+	d.StreamListItem(ctx, row)
 
 	return nil, nil
 }

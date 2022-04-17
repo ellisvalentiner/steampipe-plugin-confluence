@@ -46,12 +46,12 @@ func listContentBodyView(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	logger.Trace("listContentBody")
 
 	content := h.Item.(*model.ContentScheme)
-	c := contentBody{
+	row := contentBody{
 		ID:             content.ID,
 		Representation: content.Body.View.Representation,
 		Value:          content.Body.View.Value,
 	}
-	d.StreamListItem(ctx, c)
+	d.StreamListItem(ctx, row)
 
 	return nil, nil
 }

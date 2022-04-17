@@ -63,25 +63,19 @@ func listSpace(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		return nil, err
 	}
 
-	var maxResults int
-	limit := d.QueryContext.Limit
-	if limit != nil {
-		if *limit < int64(100) {
-			maxResults = int(*limit)
-		}
-	} else {
-		maxResults = 100
-	}
-
 	startAt := 0
+	pageSize := 25
 
+	quals := d.KeyColumnQuals
 	options := &model.GetSpacesOptionScheme{
 		SpaceKeys: nil,
+		// Type:      quals["type"].GetStringValue(),
+		Status: quals["status"].GetStringValue(),
 	}
 
 	pagesLeft := true
 	for pagesLeft {
-		page, _, err := instance.Space.Gets(context.Background(), options, startAt, maxResults)
+		page, _, err := instance.Space.Gets(context.Background(), options, startAt, pageSize)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +88,7 @@ func listSpace(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		if page.Size < page.Limit {
 			pagesLeft = false
 		}
-		startAt += maxResults
+		startAt += pageSize
 	}
 	return nil, nil
 }
