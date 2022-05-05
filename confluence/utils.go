@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ctreminiom/go-atlassian/confluence"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
 )
 
 func connect(_ context.Context, d *plugin.QueryData) (*confluence.Client, error) {
