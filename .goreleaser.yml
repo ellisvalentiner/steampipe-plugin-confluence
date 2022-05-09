@@ -1,24 +1,22 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
+# This is an example goreleaser.yaml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
 before:
   hooks:
     - go mod tidy
-    - go generate ./...
 builds:
   - env:
       - CGO_ENABLED=0
       - GO111MODULE=on
+      - GOPRIVATE=github.com/turbot
     goos:
       - linux
       - darwin
+
     goarch:
       - amd64
       - arm64
-    ignore:
-      - goos: darwin # docs suggest that darwin arm64 should compile, but doesnt...
-        goarch: arm64
 
-    id: "steampipe-confluence"
+    id: "steampipe"
     binary: "{{ .ProjectName }}.plugin"
 
 archives:
@@ -29,11 +27,9 @@ archives:
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
   algorithm: sha256
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
