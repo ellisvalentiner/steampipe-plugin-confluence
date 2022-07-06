@@ -22,6 +22,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"confluence_content_label":        tableConfluenceContentLabel(),
 			"confluence_content_version":      tableConfluenceContentVersion(),
 			"confluence_space":                tableConfluenceSpace(),
+			"confluence_search_content":       tableConfluenceSearchContent(),
 		},
 	}
 	return p
