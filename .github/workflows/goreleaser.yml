@@ -1,9 +1,6 @@
 name: goreleaser
 
 on:
-  pull_request_target:
-    branches:
-      - 'main'
   push:
     tags:
       - '*'
@@ -21,6 +18,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      -
+        name: Fetch all tags
+        run: git fetch --force --tags
+
       -
         name: Set up Go
         uses: actions/setup-go@v3
@@ -37,7 +39,7 @@ jobs:
 
       -
         name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v3
+        uses: goreleaser/goreleaser-action@v2
         with:
           distribution: goreleaser
           version: latest
