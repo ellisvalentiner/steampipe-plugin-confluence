@@ -2,11 +2,10 @@ package confluence
 
 import (
 	"context"
+	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
 
-	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
-
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 
 //// TABLE DEFINITION
@@ -52,7 +51,7 @@ func listContentBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.
 	logger := plugin.Logger(ctx)
 	logger.Trace("listContentBody")
 
-	content := h.Item.(*model.ContentScheme)
+	content := h.Item.(*models.ContentScheme)
 	row := contentBody{
 		ID:             content.ID,
 		Representation: content.Body.Storage.Representation,
