@@ -21,3 +21,6 @@
 .env
 
 dist/
+
+# Goland
+.idea
