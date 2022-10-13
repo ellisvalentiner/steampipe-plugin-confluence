@@ -5,9 +5,9 @@ import (
 
 	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -82,7 +82,7 @@ func listSearchContent(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		limit = 100
 	}
 	options := &model.SearchContentOptions{
-		Limit: limit,
+		Limit:  limit,
 		Expand: []string{"space"},
 	}
 
