@@ -1,6 +1,6 @@
 module github.com/ellisvalentiner/steampipe-plugin-confluence
 
-go 1.18
+go 1.19
 
 require (
 	github.com/ctreminiom/go-atlassian v1.4.3
