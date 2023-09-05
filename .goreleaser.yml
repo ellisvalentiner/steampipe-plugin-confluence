@@ -24,7 +24,6 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     files:
       - none*
-    rlcp: true
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
   algorithm: sha256
