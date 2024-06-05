@@ -50,7 +50,7 @@ jobs:
         name: Build
         uses: goreleaser/goreleaser-action@v5
         with:
-          args: build --rm-dist --snapshot
+          args: build --clean --snapshot
 
       -
         name: Run GoReleaser
