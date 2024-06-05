@@ -42,19 +42,19 @@ jobs:
 
       -
         name: Check GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
           args: check
 
       -
         name: Build
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
           args: build --clean --snapshot
 
       -
         name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           distribution: goreleaser
