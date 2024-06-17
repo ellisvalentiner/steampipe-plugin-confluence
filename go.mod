@@ -3,11 +3,12 @@ module github.com/ellisvalentiner/steampipe-plugin-confluence
 go 1.19
 
 require (
-	github.com/ctreminiom/go-atlassian v1.6.0
+	github.com/ctreminiom/go-atlassian v1.6.1
 	github.com/turbot/steampipe-plugin-sdk/v4 v4.1.13
 )
 
 require (
+	dario.cat/mergo v1.0.0 // indirect
 	github.com/XiaoMi/pegasus-go-client v0.0.0-20210427083443-f3b6b08bc4c2 // indirect
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
@@ -31,7 +32,7 @@ require (
 	github.com/go-test/deep v1.0.8 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/uuid v1.4.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.0 // indirect
 	github.com/hashicorp/go-hclog v1.2.2 // indirect
 	github.com/hashicorp/go-plugin v1.4.4 // indirect
@@ -39,7 +40,6 @@ require (
 	github.com/hashicorp/hcl/v2 v2.12.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
 	github.com/iancoleman/strcase v0.2.0 // indirect
-	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
@@ -60,7 +60,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/stevenle/topsort v0.0.0-20130922064739-8130c1d7596b // indirect
-	github.com/tidwall/gjson v1.17.0 // indirect
+	github.com/tidwall/gjson v1.17.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.4 // indirect
