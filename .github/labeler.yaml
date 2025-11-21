@@ -1,0 +1,42 @@
+# Configuration for automatic PR labeling
+# See: https://github.com/actions/labeler
+
+# Documentation changes
+documentation:
+  - any-glob-to-any-file: '**/*.md'
+  - any-glob-to-any-file: '**/*.rst'
+  - any-glob-to-any-file: '**/*.txt'
+
+# Infrastructure and DevOps
+infrastructure:
+  - any: ['Dockerfile*', '.dockerignore', 'docker-compose*.yml']
+  - any-glob-to-any-file: 'docker/**/*'
+  - any-glob-to-any-file: '.github/**/*'
+
+# Dependencies
+dependencies:
+  - any: ['pyproject.toml', 'requirements*.txt', 'Pipfile', 'poetry.lock', 'uv.lock']
+  - any-glob-to-any-file: '**/pyproject.toml'
+  - any-glob-to-any-file: '**/requirements*.txt'
+
+# Performance improvements (typically need manual labeling, but can catch some patterns)
+performance:
+  - any-glob-to-any-file: '**/*cache*'
+  - any-glob-to-any-file: '**/*optimize*'
+  - any-glob-to-any-file: '**/*performance*'
+
+# Breaking changes (can be inferred from branch name, but manual review recommended)
+breaking-change:
+  - head-branch: ['^breaking', '^breaking/', '^break', '^break/']
+
+# Features (can be inferred from branch name)
+feature:
+  - head-branch: ['^feature', '^feature/', '^feat', '^feat/']
+
+# Bug fixes (can be inferred from branch name)
+bug:
+  - head-branch: ['^bug', '^bug/', '^bugfix', '^bugfix/', '^fix', '^fix/']
+
+# Chore (maintenance tasks, refactoring)
+chore:
+  - head-branch: ['^chore', '^chore/', '^refactor', '^refactor/']
