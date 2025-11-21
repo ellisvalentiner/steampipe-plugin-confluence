@@ -15,9 +15,9 @@ infrastructure:
 
 # Dependencies
 dependencies:
-  - any: ['pyproject.toml', 'requirements*.txt', 'Pipfile', 'poetry.lock', 'uv.lock']
-  - any-glob-to-any-file: '**/pyproject.toml'
-  - any-glob-to-any-file: '**/requirements*.txt'
+  - any: ['go.mod', 'go.sum']
+  - any-glob-to-any-file: '**/go.mod'
+  - any-glob-to-any-file: '**/go.sum'
 
 # Performance improvements (typically need manual labeling, but can catch some patterns)
 performance:
