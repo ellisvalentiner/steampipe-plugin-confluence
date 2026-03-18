@@ -6,12 +6,16 @@ import (
 )
 
 type confluenceConfig struct {
-	BaseUrl  *string `cty:"base_url"`
-	Username *string `cty:"username"`
-	Token    *string `cty:"token"`
+	DeploymentType *string `cty:"deployment_type"` // "cloud" (default) or "datacenter"
+	BaseUrl        *string `cty:"base_url"`
+	Username       *string `cty:"username"`
+	Token          *string `cty:"token"`
 }
 
 var ConfigSchema = map[string]*schema.Attribute{
+	"deployment_type": {
+		Type: schema.TypeString,
+	},
 	"base_url": {
 		Type: schema.TypeString,
 	},
