@@ -2,11 +2,12 @@ package confluence
 
 import (
 	"context"
+	"fmt"
 
-	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
+	model "github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -17,6 +18,7 @@ func tableConfluenceSpace() *plugin.Table {
 		Description: "Confluence Space.",
 		List: &plugin.ListConfig{
 			Hydrate: listSpace,
+			KeyColumns: plugin.OptionalColumns([]string{"key", "type", "status"}),
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
@@ -64,31 +66,61 @@ func listSpace(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 	}
 
 	startAt := 0
-	pageSize := 25
+	defaultPageSize := 100
+	maxItems := getQueryLimit(d)
+	streamed := 0
 
-	quals := d.KeyColumnQuals
-	options := &model.GetSpacesOptionScheme{
-		SpaceKeys: nil,
-		// Type:      quals["type"].GetStringValue(),
-		Status: quals["status"].GetStringValue(),
+	spaceKey := getStringQual(d, "key")
+	spaceType := getStringQual(d, "type")
+	status := getStringQual(d, "status")
+
+	spaceKeys := []string{}
+	if spaceKey != "" {
+		spaceKeys = append(spaceKeys, spaceKey)
 	}
 
-	pagesLeft := true
-	for pagesLeft {
-		page, _, err := instance.Space.Gets(context.Background(), options, startAt, pageSize)
+	options := &model.GetSpacesOptionScheme{
+		SpaceKeys: spaceKeys,
+		SpaceType: spaceType,
+		Status:    status,
+	}
+
+	for {
+		pageSize := requestPageSize(maxItems, streamed, defaultPageSize)
+		if pageSize == 0 {
+			break
+		}
+
+		page, _, err := instance.Space.Gets(ctx, options, startAt, pageSize)
 		if err != nil {
 			return nil, err
 		}
+		if page == nil {
+			return nil, fmt.Errorf("confluence space list returned nil page")
+		}
+		if page.Results == nil {
+			break
+		}
+
 		for _, content := range page.Results {
+			if content == nil {
+				continue
+			}
 			d.StreamListItem(ctx, content)
+			streamed++
 			if plugin.IsCancelled(ctx) {
 				return nil, nil
 			}
+			if maxItems > 0 && streamed >= maxItems {
+				return nil, nil
+			}
 		}
-		if page.Size < page.Limit {
-			pagesLeft = false
+
+		if page.Size == 0 || page.Size < page.Limit || page.Size < pageSize {
+			break
 		}
-		startAt += pageSize
+
+		startAt += page.Size
 	}
 	return nil, nil
 }
@@ -104,12 +136,13 @@ func getSpace(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (
 		return nil, err
 	}
 
-	quals := d.KeyColumnQuals
-	logger.Warn("getSpace", "quals", quals)
-	id := quals["id"].GetStringValue()
-	logger.Warn("getSpace", "id", id)
+	id := getStringQual(d, "id")
+	logger.Trace("getSpace", "id", id)
+	if id == "" {
+		return nil, nil
+	}
 
-	content, _, err := instance.Space.Get(context.Background(), id, []string{})
+	content, _, err := instance.Space.Get(ctx, id, []string{})
 	if err != nil {
 		return nil, err
 	}

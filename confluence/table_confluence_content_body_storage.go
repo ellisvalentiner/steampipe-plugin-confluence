@@ -2,10 +2,10 @@ package confluence
 
 import (
 	"context"
-	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
+	"github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -15,8 +15,9 @@ func tableConfluenceContentBodyStorage() *plugin.Table {
 		Name:        "confluence_content_body_storage",
 		Description: "Confluence Content Body in the Storage Format.",
 		List: &plugin.ListConfig{
-			ParentHydrate: listContent,
+			ParentHydrate: listContentForBodyStorage,
 			Hydrate:       listContentBodyStorage,
+			KeyColumns:    plugin.OptionalColumns([]string{"id"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -52,6 +53,9 @@ func listContentBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.
 	logger.Trace("listContentBody")
 
 	content := h.Item.(*models.ContentScheme)
+	if content == nil || content.Body == nil || content.Body.Storage == nil {
+		return nil, nil
+	}
 	row := contentBody{
 		ID:             content.ID,
 		Representation: content.Body.Storage.Representation,
@@ -60,4 +64,8 @@ func listContentBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.
 	d.StreamListItem(ctx, row)
 
 	return nil, nil
+}
+
+func listContentForBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	return listContentWithExpand(ctx, d, []string{"body.storage"})
 }

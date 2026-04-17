@@ -3,10 +3,10 @@ package confluence
 import (
 	"context"
 
-	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
+	model "github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -16,8 +16,9 @@ func tableConfluenceContentLabel() *plugin.Table {
 		Name:        "confluence_content_label",
 		Description: "Confluence Content Label.",
 		List: &plugin.ListConfig{
-			ParentHydrate: listContent,
+			ParentHydrate: listContentForLabels,
 			Hydrate:       listContentLabel,
+			KeyColumns:    plugin.OptionalColumns([]string{"id", "content_id", "space_key", "title"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -75,6 +76,9 @@ func listContentLabel(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	logger.Trace("listContentLabel")
 
 	content := h.Item.(*model.ContentScheme)
+	if content == nil || content.Metadata == nil || content.Metadata.Labels == nil || content.Space == nil {
+		return nil, nil
+	}
 	for _, label := range content.Metadata.Labels.Results {
 		row := contentLabel{
 			ID:        label.ID,
@@ -89,4 +93,8 @@ func listContentLabel(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	}
 
 	return nil, nil
+}
+
+func listContentForLabels(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	return listContentWithExpand(ctx, d, []string{"space", "metadata.labels"})
 }
