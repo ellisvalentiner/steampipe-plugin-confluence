@@ -12,9 +12,26 @@ select
   title,
   space_key,
   status,
-  type
+  type,
+  last_modified
 from
   confluence_content;
+```
+
+### Get recently modified content
+
+```sql
+select
+  id,
+  title,
+  space_key,
+  last_modified
+from
+  confluence_content
+where
+  last_modified is not null
+order by
+  last_modified desc;
 ```
 
 ### Get the count of content type

@@ -58,6 +58,12 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "The content version",
 				Transform:   transform.FromField("Version.Number"),
 			},
+			{
+				Name:        "last_modified",
+				Type:        proto.ColumnType_STRING,
+				Description: "When the content was last modified.",
+				Transform:   transform.FromField("Version.When"),
+			},
 		},
 	}
 }
