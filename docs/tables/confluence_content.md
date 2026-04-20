@@ -13,7 +13,8 @@ select
   space_key,
   status,
   type,
-  last_modified
+  last_modified,
+  tags
 from
   confluence_content;
 ```
@@ -32,6 +33,19 @@ where
   last_modified is not null
 order by
   last_modified desc;
+```
+
+### Get content and its tags
+
+```sql
+select
+  id,
+  title,
+  tags
+from
+  confluence_content
+where
+  coalesce(jsonb_array_length(tags), 0) > 0;
 ```
 
 ### Get the count of content type

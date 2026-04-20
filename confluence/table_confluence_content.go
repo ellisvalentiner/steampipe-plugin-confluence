@@ -64,6 +64,13 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "When the content was last modified.",
 				Transform:   transform.FromField("Version.When"),
 			},
+			{
+				Name:        "tags",
+				Type:        proto.ColumnType_JSON,
+				Description: "The content tags.",
+				Hydrate:     getContentTags,
+				Transform:   transform.FromValue(),
+			},
 		},
 	}
 }
@@ -186,4 +193,52 @@ func getContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	}
 
 	return page.Results[0], nil
+}
+
+func getContentTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	content := h.Item.(*model.ContentScheme)
+	if content == nil {
+		return []string{}, nil
+	}
+
+	tags := extractContentTags(content)
+	if len(tags) > 0 {
+		return tags, nil
+	}
+
+	if content.ID == "" {
+		return []string{}, nil
+	}
+
+	instance, err := connect(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	cql := fmt.Sprintf("id=%s", content.ID)
+	page, _, err := instance.Content.Search(ctx, cql, "", []string{"metadata.labels"}, "", 1)
+	if err != nil {
+		return nil, err
+	}
+	if page == nil || len(page.Results) == 0 {
+		return []string{}, nil
+	}
+
+	return extractContentTags(page.Results[0]), nil
+}
+
+func extractContentTags(content *model.ContentScheme) []string {
+	if content == nil || content.Metadata == nil || content.Metadata.Labels == nil {
+		return []string{}
+	}
+
+	tags := make([]string, 0, len(content.Metadata.Labels.Results))
+	for _, label := range content.Metadata.Labels.Results {
+		if label == nil || label.Name == "" {
+			continue
+		}
+		tags = append(tags, label.Name)
+	}
+
+	return tags
 }

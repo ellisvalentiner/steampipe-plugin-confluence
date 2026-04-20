@@ -26,21 +26,22 @@ select
   status,
   type,
   version_number,
-  last_modified
+  last_modified,
+  tags
 from
   confluence_content;
 ```
 
 ```
-+--------+------------------------------+-----------+---------+------+----------------+----------------------+
-| id     | title                        | space_key | status  | type | version_number | last_modified        |
-+--------+------------------------------+-----------+---------+------+----------------+----------------------+
-| 163576 | Documentation                | DOC       | current | page | 5              | 2024-01-10T16:23:58Z |
-| 110222 | HTTP Status Codes            | DOC       | current | page | 3              | 2023-11-02T09:14:21Z |
-| 336504 | Confluence Getting started   | DOC       | current | page | 2              | 2023-09-18T20:41:07Z |
-| 916343 | Staff Directory              | DOC       | current | page | 2              | 2023-08-07T13:05:44Z |
-| 196895 | Product Requirements         | DOC       | current | page | 2              | 2023-07-29T17:52:11Z |
-+--------+------------------------------+-----------+---------+------+----------------+----------------------+
++--------+------------------------------+-----------+---------+------+----------------+----------------------+-------------------------------+
+| id     | title                        | space_key | status  | type | version_number | last_modified        | tags                          |
++--------+------------------------------+-----------+---------+------+----------------+----------------------+-------------------------------+
+| 163576 | Documentation                | DOC       | current | page | 5              | 2024-01-10T16:23:58Z | ["docs", "how-to"]          |
+| 110222 | HTTP Status Codes            | DOC       | current | page | 3              | 2023-11-02T09:14:21Z | ["reference", "http"]       |
+| 336504 | Confluence Getting started   | DOC       | current | page | 2              | 2023-09-18T20:41:07Z | ["getting-started"]          |
+| 916343 | Staff Directory              | DOC       | current | page | 2              | 2023-08-07T13:05:44Z | ["people", "directory"]     |
+| 196895 | Product Requirements         | DOC       | current | page | 2              | 2023-07-29T17:52:11Z | ["product", "requirements"] |
++--------+------------------------------+-----------+---------+------+----------------+----------------------+-------------------------------+
 ```
 
 ## Documentation
