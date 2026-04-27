@@ -18,10 +18,6 @@ func getStringQual(d *plugin.QueryData, name string) string {
 	}
 
 	value := grpc.GetQualValue(qualValue)
-	if value == nil {
-		return ""
-	}
-
 	if str, ok := value.(string); ok {
 		return str
 	}
