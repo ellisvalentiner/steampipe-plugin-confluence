@@ -3,7 +3,7 @@ module github.com/ellisvalentiner/steampipe-plugin-confluence
 go 1.26.0
 
 require (
-	github.com/ctreminiom/go-atlassian/v2 v2.11.0
+	github.com/ctreminiom/go-atlassian/v2 v2.12.0
 	github.com/turbot/steampipe-plugin-sdk/v5 v5.14.0
 )
 
