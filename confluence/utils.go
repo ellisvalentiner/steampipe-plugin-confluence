@@ -24,23 +24,54 @@ type retryTransport struct {
 func (t *retryTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
+	original := r
+
 	for attempt := 0; attempt <= maxRetries; attempt++ {
+		req := original
 		if attempt > 0 {
 			delay := retryDelay(resp, attempt)
 			select {
-			case <-r.Context().Done():
-				return nil, r.Context().Err()
+			case <-original.Context().Done():
+				return nil, original.Context().Err()
 			case <-time.After(delay):
 			}
-			// Must clone the request before reuse; the body was already consumed.
-			r = r.Clone(r.Context())
+
+			req, err = cloneRequestForRetry(original)
+			if err != nil {
+				return resp, err
+			}
 		}
-		resp, err = t.wrapped.RoundTrip(r)
+
+		resp, err = t.wrapped.RoundTrip(req)
 		if err != nil || !shouldRetry(resp) {
 			break
 		}
+
+		if original.Body != nil && original.GetBody == nil {
+			break
+		}
+
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
 	}
 	return resp, err
+}
+
+func cloneRequestForRetry(r *http.Request) (*http.Request, error) {
+	clone := r.Clone(r.Context())
+	if r.Body == nil {
+		return clone, nil
+	}
+	if r.GetBody == nil {
+		return nil, fmt.Errorf("request body is not replayable")
+	}
+	body, err := r.GetBody()
+	if err != nil {
+		return nil, err
+	}
+	clone.Body = body
+	return clone, nil
 }
 
 func shouldRetry(resp *http.Response) bool {
