@@ -36,6 +36,9 @@ func GetConfig(connection *plugin.Connection) confluenceConfig {
 	if connection == nil || connection.Config == nil {
 		return confluenceConfig{}
 	}
-	config, _ := connection.Config.(confluenceConfig)
-	return config
+	config, ok := connection.Config.(*confluenceConfig)
+	if !ok || config == nil {
+		return confluenceConfig{}
+	}
+	return *config
 }

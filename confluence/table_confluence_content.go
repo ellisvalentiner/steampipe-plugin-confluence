@@ -78,7 +78,7 @@ func tableConfluenceContent() *plugin.Table {
 //// LIST FUNCTIONS
 
 func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	return listContentWithExpand(ctx, d, []string{"space", "version"})
+	return listContentWithExpand(ctx, d, []string{"space", "version", "metadata.labels"})
 }
 
 func listContentWithExpand(ctx context.Context, d *plugin.QueryData, expand []string) (interface{}, error) {
@@ -181,7 +181,7 @@ func getContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		return nil, nil
 	}
 
-	expand := []string{"space", "version", "body.storage", "body.view"}
+	expand := []string{"space", "version", "body.storage", "body.view", "metadata.labels"}
 	cql := fmt.Sprintf("id=%s", id)
 	page, _, err := instance.Content.Search(ctx, cql, "", expand, "", 1)
 	if err != nil {
@@ -201,9 +201,9 @@ func getContentTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return []string{}, nil
 	}
 
-	tags := extractContentTags(content)
-	if len(tags) > 0 {
-		return tags, nil
+	// Labels were already fetched via the metadata.labels expand — no extra call needed.
+	if content.Metadata != nil && content.Metadata.Labels != nil {
+		return extractContentTags(content), nil
 	}
 
 	if content.ID == "" {
