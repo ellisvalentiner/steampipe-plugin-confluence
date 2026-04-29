@@ -1,0 +1,22 @@
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - unused
+    - misspell
+    - gofmt
+    - nilerr
+
+linters-settings:
+  errcheck:
+    check-blank: true
+
+issues:
+  exclude-rules:
+    # Test files can use t.Fatal without wrapping
+    - path: _test\.go
+      linters:
+        - errcheck
