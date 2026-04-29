@@ -3,10 +3,10 @@ package confluence
 import (
 	"context"
 
-	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
+	model "github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -16,8 +16,9 @@ func tableConfluenceContentBodyView() *plugin.Table {
 		Name:        "confluence_content_body_view",
 		Description: "Confluence Content Body in the View Format.",
 		List: &plugin.ListConfig{
-			ParentHydrate: listContent,
+			ParentHydrate: listContentForBodyView,
 			Hydrate:       listContentBodyView,
+			KeyColumns:    plugin.OptionalColumns([]string{"id"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -46,6 +47,9 @@ func listContentBodyView(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	logger.Trace("listContentBody")
 
 	content := h.Item.(*model.ContentScheme)
+	if content == nil || content.Body == nil || content.Body.View == nil {
+		return nil, nil
+	}
 	row := contentBody{
 		ID:             content.ID,
 		Representation: content.Body.View.Representation,
@@ -54,4 +58,8 @@ func listContentBodyView(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	d.StreamListItem(ctx, row)
 
 	return nil, nil
+}
+
+func listContentForBodyView(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	return listContentWithExpand(ctx, d, []string{"body.view"})
 }

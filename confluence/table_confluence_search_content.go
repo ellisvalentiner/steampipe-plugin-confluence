@@ -3,11 +3,11 @@ package confluence
 import (
 	"context"
 
-	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
+	model "github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -67,7 +67,10 @@ func listSearchContent(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	logger := plugin.Logger(ctx)
 	logger.Trace("Search confluence content")
 
-	cql := d.KeyColumnQuals["cql"].GetStringValue()
+	cql := getStringQual(d, "cql")
+	if cql == "" {
+		return nil, nil
+	}
 	logger.Trace("listSearchContent", "cql", cql)
 
 	instance, err := connect(ctx, d)
@@ -75,36 +78,46 @@ func listSearchContent(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		return nil, err
 	}
 
-	var limit int
-	if d.QueryContext.Limit != nil {
-		limit = int(limit)
-	} else {
-		limit = 100
-	}
+	maxItems := getQueryLimit(d)
 	options := &model.SearchContentOptions{
-		Limit:  limit,
 		Expand: []string{"space"},
 	}
 
 	startAt := 0
-	pageSize := 25
-	pagesLeft := true
-	for pagesLeft {
-		searchResults, response, err := instance.Search.Content(context.Background(), cql, options)
+	defaultPageSize := 100
+	streamed := 0
+	for {
+		pageSize := requestPageSize(maxItems, streamed, defaultPageSize)
+		if pageSize == 0 {
+			break
+		}
+
+		options.Start = startAt
+		options.Limit = pageSize
+
+		searchResults, response, err := instance.Search.Content(ctx, cql, options)
 		if err != nil {
 			logger.Warn("Encountered error", "error", err, "Response", response)
-			return nil, nil
+			return nil, err
 		}
 
 		for _, row := range searchResults.Results {
 			d.StreamListItem(ctx, row)
+			streamed++
 			if plugin.IsCancelled(ctx) {
 				logger.Trace("CANCELLED!")
 				return nil, nil
 			}
+			if maxItems > 0 && streamed >= maxItems {
+				return nil, nil
+			}
 		}
-		pagesLeft = false
-		startAt += pageSize
+
+		if searchResults.Size == 0 || searchResults.Size < options.Limit {
+			break
+		}
+
+		startAt += searchResults.Size
 	}
 	return nil, nil
 }

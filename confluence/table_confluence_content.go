@@ -2,12 +2,13 @@ package confluence
 
 import (
 	"context"
+	"fmt"
 
-	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
+	model "github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -18,6 +19,7 @@ func tableConfluenceContent() *plugin.Table {
 		Description: "Confluence Content.",
 		List: &plugin.ListConfig{
 			Hydrate: listContent,
+			KeyColumns: plugin.OptionalColumns([]string{"id", "space_key", "type", "status", "title"}),
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
@@ -56,6 +58,19 @@ func tableConfluenceContent() *plugin.Table {
 				Description: "The content version",
 				Transform:   transform.FromField("Version.Number"),
 			},
+			{
+				Name:        "last_modified",
+				Type:        proto.ColumnType_STRING,
+				Description: "When the content was last modified.",
+				Transform:   transform.FromField("Version.When"),
+			},
+			{
+				Name:        "tags",
+				Type:        proto.ColumnType_JSON,
+				Description: "The content tags.",
+				Hydrate:     getContentTags,
+				Transform:   transform.FromValue(),
+			},
 		},
 	}
 }
@@ -63,6 +78,10 @@ func tableConfluenceContent() *plugin.Table {
 //// LIST FUNCTIONS
 
 func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	return listContentWithExpand(ctx, d, []string{"space", "version"})
+}
+
+func listContentWithExpand(ctx context.Context, d *plugin.QueryData, expand []string) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	logger.Trace("List confluence content")
 
@@ -71,40 +90,77 @@ func listContent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 		return nil, err
 	}
 
-	var limit int
-	if d.QueryContext.Limit != nil {
-		limit = int(limit)
-	} else {
-		limit = 1000
+	maxItems := getQueryLimit(d)
+	contentID := getStringQual(d, "id")
+	if contentID == "" {
+		contentID = getStringQual(d, "content_id")
 	}
-	quals := d.KeyColumnQuals
+	spaceKey := getStringQual(d, "space_key")
+	contentType := getStringQual(d, "type")
+	status := getStringQual(d, "status")
+	title := getStringQual(d, "title")
+
+	if contentID != "" {
+		cql := fmt.Sprintf("id=%s", contentID)
+		page, _, err := instance.Content.Search(ctx, cql, "", expand, "", 1)
+		if err != nil {
+			return nil, err
+		}
+		if page == nil || len(page.Results) == 0 {
+			return nil, nil
+		}
+
+		d.StreamListItem(ctx, page.Results[0])
+		return nil, nil
+	}
+
+	statuses := []string{}
+	if status != "" {
+		statuses = append(statuses, status)
+	}
+
 	options := &model.GetContentOptionsScheme{
-		Expand:   []string{"childTypes.all", "body.storage", "body.view", "metadata.labels", "space", "version"},
-		SpaceKey: quals["space_key"].GetStringValue(),
+		ContextType: contentType,
+		SpaceKey:    spaceKey,
+		Title:       title,
+		Status:      statuses,
+		Expand:      expand,
 	}
 
 	startAt := 0
-	pageSize := 25
-	pagesLeft := true
-	for pagesLeft {
-		page, response, err := instance.Content.Gets(context.Background(), options, startAt, pageSize)
+	defaultPageSize := 100
+	streamed := 0
+	for {
+		pageSize := requestPageSize(maxItems, streamed, defaultPageSize)
+		if pageSize == 0 {
+			break
+		}
+
+		page, response, err := instance.Content.Gets(ctx, options, startAt, pageSize)
 		if err != nil {
 			logger.Warn("Encountered error", "error", err, "Response", response)
-			return nil, nil
-		} else {
-			logger.Trace("Adding content items", "start", page.Start, "size", page.Size, "links", page.Links)
-			for _, content := range page.Results {
-				d.StreamListItem(ctx, content)
-				if plugin.IsCancelled(ctx) {
-					return nil, nil
-				}
-			}
-			if page.Size < page.Limit || limit <= page.Size {
-				pagesLeft = false
-			}
-			startAt += pageSize
+			return nil, err
 		}
+
+		logger.Trace("Adding content items", "start", page.Start, "size", page.Size, "links", page.Links)
+		for _, content := range page.Results {
+			d.StreamListItem(ctx, content)
+			streamed++
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
+			if maxItems > 0 && streamed >= maxItems {
+				return nil, nil
+			}
+		}
+
+		if page.Size == 0 || page.Size < page.Limit || page.Size < pageSize {
+			break
+		}
+
+		startAt += page.Size
 	}
+
 	return nil, nil
 }
 
@@ -119,18 +175,70 @@ func getContent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		return nil, err
 	}
 
-	quals := d.KeyColumnQuals
-	logger.Warn("getContent", "quals", quals)
-	id := quals["id"].GetStringValue()
-	logger.Warn("getContent", "id", id)
+	id := getStringQual(d, "id")
+	logger.Trace("getContent", "id", id)
+	if id == "" {
+		return nil, nil
+	}
 
-	expand := []string{"childTypes.all", "body.storage", "body.view", "space", "version"}
-	version := 1
-
-	content, _, err := instance.Content.Get(context.Background(), id, expand, version)
+	expand := []string{"space", "version", "body.storage", "body.view"}
+	cql := fmt.Sprintf("id=%s", id)
+	page, _, err := instance.Content.Search(ctx, cql, "", expand, "", 1)
 	if err != nil {
 		return nil, err
 	}
 
-	return content, nil
+	if page == nil || len(page.Results) == 0 {
+		return nil, nil
+	}
+
+	return page.Results[0], nil
+}
+
+func getContentTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	content := h.Item.(*model.ContentScheme)
+	if content == nil {
+		return []string{}, nil
+	}
+
+	tags := extractContentTags(content)
+	if len(tags) > 0 {
+		return tags, nil
+	}
+
+	if content.ID == "" {
+		return []string{}, nil
+	}
+
+	instance, err := connect(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	cql := fmt.Sprintf("id=%s", content.ID)
+	page, _, err := instance.Content.Search(ctx, cql, "", []string{"metadata.labels"}, "", 1)
+	if err != nil {
+		return nil, err
+	}
+	if page == nil || len(page.Results) == 0 {
+		return []string{}, nil
+	}
+
+	return extractContentTags(page.Results[0]), nil
+}
+
+func extractContentTags(content *model.ContentScheme) []string {
+	if content == nil || content.Metadata == nil || content.Metadata.Labels == nil {
+		return []string{}
+	}
+
+	tags := make([]string, 0, len(content.Metadata.Labels.Results))
+	for _, label := range content.Metadata.Labels.Results {
+		if label == nil || label.Name == "" {
+			continue
+		}
+		tags = append(tags, label.Name)
+	}
+
+	return tags
 }

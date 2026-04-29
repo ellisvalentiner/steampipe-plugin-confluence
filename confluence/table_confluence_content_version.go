@@ -3,10 +3,10 @@ package confluence
 import (
 	"context"
 
-	model "github.com/ctreminiom/go-atlassian/pkg/infra/models"
+	model "github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 //// TABLE DEFINITION
@@ -16,8 +16,9 @@ func tableConfluenceContentVersion() *plugin.Table {
 		Name:        "confluence_content_version",
 		Description: "Confluence Content Version.",
 		List: &plugin.ListConfig{
-			ParentHydrate: listContent,
+			ParentHydrate: listContentForVersions,
 			Hydrate:       listContentVersion,
+			KeyColumns:    plugin.OptionalColumns([]string{"id"}),
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
@@ -98,6 +99,9 @@ func listContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	logger.Trace("listContentVersion")
 
 	content := h.Item.(*model.ContentScheme)
+	if content == nil || content.Version == nil || content.Version.By == nil {
+		return nil, nil
+	}
 	row := contentVersion{
 		ID:          content.ID,
 		Number:      content.Version.Number,
@@ -126,15 +130,16 @@ func getContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 		return nil, err
 	}
 
-	quals := d.KeyColumnQuals
-	logger.Warn("getContent", "quals", quals)
-	id := quals["id"].GetStringValue()
-	logger.Warn("getContent", "id", id)
+	id := getStringQual(d, "id")
+	logger.Trace("getContent", "id", id)
+	if id == "" {
+		return nil, nil
+	}
 
 	expand := []string{}
 	start := 0
 	limit := 50
-	versions, _, err := instance.Content.Version.Gets(context.Background(), id, expand, start, limit)
+	versions, _, err := instance.Content.Version.Gets(ctx, id, expand, start, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -159,4 +164,8 @@ func getContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	}
 
 	return rows, nil
+}
+
+func listContentForVersions(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	return listContentWithExpand(ctx, d, []string{"version"})
 }
