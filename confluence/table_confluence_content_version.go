@@ -123,7 +123,7 @@ func listContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 func getContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	logger.Trace("Get confluence content")
+	logger.Trace("getContentVersion")
 
 	instance, err := connect(ctx, d)
 	if err != nil {
@@ -131,7 +131,7 @@ func getContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	}
 
 	id := getStringQual(d, "id")
-	logger.Trace("getContent", "id", id)
+	logger.Trace("getContentVersion", "id", id)
 	if id == "" {
 		return nil, nil
 	}

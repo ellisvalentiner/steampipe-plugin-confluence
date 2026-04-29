@@ -58,7 +58,7 @@ func tableConfluenceSpace() *plugin.Table {
 
 func listSpace(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
-	logger.Trace("listContent")
+	logger.Trace("listSpace")
 
 	instance, err := connect(ctx, d)
 	if err != nil {
