@@ -145,6 +145,12 @@ func connect(_ context.Context, d *plugin.QueryData) (*confluence.Client, error)
 	return instance, nil
 }
 
+type contentBody struct {
+	ID             string `json:"id,omitempty"`
+	Representation string `json:"representation,omitempty"`
+	Value          string `json:"value,omitempty"`
+}
+
 func ptrString(v *string) string {
 	if v == nil {
 		return ""
