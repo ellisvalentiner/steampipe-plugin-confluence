@@ -2,6 +2,7 @@ package confluence
 
 import (
 	"context"
+	"fmt"
 
 	model "github.com/ctreminiom/go-atlassian/v2/pkg/infra/models"
 
@@ -69,7 +70,7 @@ func listSearchContent(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 
 	cql := getStringQual(d, "cql")
 	if cql == "" {
-		return nil, nil
+		return nil, fmt.Errorf("confluence_search_content requires a 'cql' qual, e.g. WHERE cql = 'type = page'")
 	}
 	logger.Trace("listSearchContent", "cql", cql)
 
