@@ -73,20 +73,24 @@ connection "confluence" {
     plugin    = "ellisvalentiner/confluence"
 
     # Base URI of your Confluence Cloud instance
+    # Can also be set via the CONFLUENCE_BASE_URL environment variable.
     base_url = "https://your-domain.atlassian.net/"
 
-    # The user name to access the Confluence cloud instance
+    # The user name (email) to access the Confluence cloud instance
+    # Can also be set via the CONFLUENCE_USERNAME environment variable.
     # username = "name@company.domain"
 
-    # Access Token for the API
+    # Atlassian Cloud API token
     # See https://id.atlassian.com/manage/api-tokens
+    # Can also be set via the CONFLUENCE_TOKEN environment variable.
     # token = ""
 }
 ```
 
-- `base_url` - The site url of your Atlassian subscription.
-- `username` - Email address of agent user who have permission to access the API.
-- `token` - [API token](https://id.atlassian.com/manage-profile/security/api-tokens) for user's Atlassian account.
+- `base_url` - The site url of your Atlassian subscription. Can also be set via the `CONFLUENCE_BASE_URL` environment variable.
+- `username` - Email address of agent user who have permission to access the API. Can also be set via the `CONFLUENCE_USERNAME` environment variable.
+- `token` - [API token](https://id.atlassian.com/manage-profile/security/api-tokens) for user's Atlassian account. Can also be set via the `CONFLUENCE_TOKEN` environment variable.
+- `deployment_type` - Either `cloud` (default) or `datacenter`. Can also be set via the `CONFLUENCE_DEPLOYMENT_TYPE` environment variable.
 
 ## Get involved
 

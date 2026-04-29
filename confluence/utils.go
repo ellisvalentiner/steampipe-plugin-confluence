@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/ctreminiom/go-atlassian/v2/confluence"
@@ -24,24 +25,38 @@ func (t *dataCenterTransport) RoundTrip(r *http.Request) (*http.Response, error)
 
 func connect(_ context.Context, d *plugin.QueryData) (*confluence.Client, error) {
 	confluenceConfig := GetConfig(d.Connection)
+
 	baseURL := strings.TrimSpace(ptrString(confluenceConfig.BaseUrl))
+	if baseURL == "" {
+		baseURL = strings.TrimSpace(os.Getenv("CONFLUENCE_BASE_URL"))
+	}
+
 	deploymentType := strings.TrimSpace(ptrString(confluenceConfig.DeploymentType))
+	if deploymentType == "" {
+		deploymentType = strings.TrimSpace(os.Getenv("CONFLUENCE_DEPLOYMENT_TYPE"))
+	}
 	if deploymentType == "" {
 		deploymentType = "cloud"
 	}
 
 	if baseURL == "" {
-		return nil, fmt.Errorf("missing required connection config: base_url")
+		return nil, fmt.Errorf("missing required config: set base_url or CONFLUENCE_BASE_URL")
 	}
 
 	token := strings.TrimSpace(ptrString(confluenceConfig.Token))
 	if token == "" {
-		return nil, fmt.Errorf("missing required connection config: token")
+		token = strings.TrimSpace(os.Getenv("CONFLUENCE_TOKEN"))
+	}
+	if token == "" {
+		return nil, fmt.Errorf("missing required config: set token or CONFLUENCE_TOKEN")
 	}
 
 	username := strings.TrimSpace(ptrString(confluenceConfig.Username))
+	if username == "" {
+		username = strings.TrimSpace(os.Getenv("CONFLUENCE_USERNAME"))
+	}
 	if deploymentType != "datacenter" && username == "" {
-		return nil, fmt.Errorf("missing required connection config for cloud: username")
+		return nil, fmt.Errorf("missing required config for cloud: set username or CONFLUENCE_USERNAME")
 	}
 
 	// Load connection from cache, which preserves throttling protection etc
