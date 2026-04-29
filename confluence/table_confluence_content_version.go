@@ -138,29 +138,40 @@ func getContentVersion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 
 	expand := []string{}
 	start := 0
-	limit := 50
-	versions, _, err := instance.Content.Version.Gets(ctx, id, expand, start, limit)
-	if err != nil {
-		return nil, err
-	}
+	pageSize := 50
 	var rows []contentVersion
-	for _, version := range versions.Results {
-		row := contentVersion{
-			ID:          id,
-			Number:      version.Number,
-			When:        version.When,
-			Message:     version.Message,
-			MinorEdit:   version.MinorEdit,
-			Username:    version.By.Username,
-			UserKey:     version.By.UserKey,
-			AccountID:   version.By.AccountID,
-			Email:       version.By.Email,
-			DisplayName: version.By.DisplayName,
+	for {
+		versions, _, err := instance.Content.Version.Gets(ctx, id, expand, start, pageSize)
+		if err != nil {
+			return nil, err
 		}
-		if plugin.IsCancelled(ctx) {
-			return nil, nil
+		if versions == nil || len(versions.Results) == 0 {
+			break
 		}
-		rows = append(rows, row)
+		for _, version := range versions.Results {
+			if plugin.IsCancelled(ctx) {
+				return rows, nil
+			}
+			row := contentVersion{
+				ID:        id,
+				Number:    version.Number,
+				When:      version.When,
+				Message:   version.Message,
+				MinorEdit: version.MinorEdit,
+			}
+			if version.By != nil {
+				row.Username = version.By.Username
+				row.UserKey = version.By.UserKey
+				row.AccountID = version.By.AccountID
+				row.Email = version.By.Email
+				row.DisplayName = version.By.DisplayName
+			}
+			rows = append(rows, row)
+		}
+		if len(versions.Results) < pageSize {
+			break
+		}
+		start += len(versions.Results)
 	}
 
 	return rows, nil
