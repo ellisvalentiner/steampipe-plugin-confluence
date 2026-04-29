@@ -3,13 +3,67 @@ package confluence
 import (
 	"context"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ctreminiom/go-atlassian/v2/confluence"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
+
+const maxRetries = 3
+
+// retryTransport retries requests on 429 and 5xx responses with exponential backoff.
+type retryTransport struct {
+	wrapped http.RoundTripper
+}
+
+func (t *retryTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	var resp *http.Response
+	var err error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if attempt > 0 {
+			delay := retryDelay(resp, attempt)
+			select {
+			case <-r.Context().Done():
+				return nil, r.Context().Err()
+			case <-time.After(delay):
+			}
+			// Must clone the request before reuse; the body was already consumed.
+			r = r.Clone(r.Context())
+		}
+		resp, err = t.wrapped.RoundTrip(r)
+		if err != nil || !shouldRetry(resp) {
+			break
+		}
+	}
+	return resp, err
+}
+
+func shouldRetry(resp *http.Response) bool {
+	if resp == nil {
+		return false
+	}
+	return resp.StatusCode == http.StatusTooManyRequests ||
+		resp.StatusCode == http.StatusServiceUnavailable ||
+		resp.StatusCode >= 500
+}
+
+// retryDelay returns the delay before the next attempt.
+// Respects Retry-After if the server sends it, otherwise uses exponential backoff.
+func retryDelay(resp *http.Response, attempt int) time.Duration {
+	if resp != nil {
+		if after := resp.Header.Get("Retry-After"); after != "" {
+			if secs, err := strconv.Atoi(after); err == nil {
+				return time.Duration(secs) * time.Second
+			}
+		}
+	}
+	return time.Duration(math.Pow(2, float64(attempt))) * time.Second
+}
 
 // dataCenterTransport rewrites the wiki/rest/api/ path prefix used by go-atlassian
 // (which targets Confluence Cloud) to /rest/api/ for Confluence Data Center.
@@ -67,10 +121,11 @@ func connect(_ context.Context, d *plugin.QueryData) (*confluence.Client, error)
 
 	isDataCenter := deploymentType == "datacenter"
 
-	httpClient := &http.Client{Transport: http.DefaultTransport}
+	var transport http.RoundTripper = &retryTransport{wrapped: http.DefaultTransport}
 	if isDataCenter {
-		httpClient.Transport = &dataCenterTransport{wrapped: http.DefaultTransport}
+		transport = &dataCenterTransport{wrapped: transport}
 	}
+	httpClient := &http.Client{Transport: transport}
 
 	instance, err := confluence.New(httpClient, baseURL)
 	if err != nil {
