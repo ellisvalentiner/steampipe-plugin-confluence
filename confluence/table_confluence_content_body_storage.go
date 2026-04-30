@@ -39,13 +39,6 @@ func tableConfluenceContentBodyStorage() *plugin.Table {
 	}
 }
 
-// structs
-type contentBody struct {
-	ID             string `json:"id,omitempty"`
-	Representation string `json:"representation,omitempty"`
-	Value          string `json:"value,omitempty"`
-}
-
 //// LIST FUNCTIONS
 
 func listContentBodyStorage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

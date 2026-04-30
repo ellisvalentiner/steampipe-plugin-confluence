@@ -80,6 +80,9 @@ func listContentLabel(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		return nil, nil
 	}
 	for _, label := range content.Metadata.Labels.Results {
+		if label == nil {
+			continue
+		}
 		row := contentLabel{
 			ID:        label.ID,
 			ContentID: content.ID,
