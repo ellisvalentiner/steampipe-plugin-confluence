@@ -147,7 +147,9 @@ func connect(_ context.Context, d *plugin.QueryData) (*confluence.Client, error)
 	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := fmt.Sprintf("atlassian-confluence:%s:%s:%s", deploymentType, strings.TrimSuffix(baseURL, "/"), username)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
-		return cachedData.(*confluence.Client), nil
+		if client, ok := cachedData.(*confluence.Client); ok {
+			return client, nil
+		}
 	}
 
 	isDataCenter := deploymentType == "datacenter"

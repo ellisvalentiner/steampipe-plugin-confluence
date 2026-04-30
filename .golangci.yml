@@ -9,7 +9,6 @@ linters:
     - ineffassign
     - unused
     - misspell
-    - gofmt
     - nilerr
   settings:
     errcheck:
@@ -19,3 +18,7 @@ linters:
       - path: _test\.go
         linters:
           - errcheck
+
+formatters:
+  enable:
+    - gofmt
