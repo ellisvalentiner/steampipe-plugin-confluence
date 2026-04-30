@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go mod *)",
+      "Bash(git checkout *)",
+      "Bash(go build *)",
+      "Read(//usr/local/go/bin/**)",
+      "Read(//Users/ellisvalentiner/go/bin/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(/opt/homebrew/opt/go/libexec/bin/go build *)",
+      "Read(//Users/ellisvalentiner/**)",
+      "Read(//usr/local/**)",
+      "Bash(command -v go)",
+      "Bash(/Users/ellisvalentiner/.cache/pre-commit/repoxoiidlxi/golangenv-default/.go/bin/go version *)",
+      "Bash(GOROOT=/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go /Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go version)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(export GOROOT=/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go)",
+      "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go build *)",
+      "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go doc *)",
+      "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go test *)",
+      "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go vet *)"
+    ]
+  }
+}
