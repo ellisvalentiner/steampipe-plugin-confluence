@@ -18,7 +18,7 @@ func tableConfluenceContent() *plugin.Table {
 		Name:        "confluence_content",
 		Description: "Confluence Content.",
 		List: &plugin.ListConfig{
-			Hydrate: listContent,
+			Hydrate:    listContent,
 			KeyColumns: plugin.OptionalColumns([]string{"id", "space_key", "type", "status", "title"}),
 		},
 		Get: &plugin.GetConfig{

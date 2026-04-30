@@ -17,7 +17,7 @@ func tableConfluenceSpace() *plugin.Table {
 		Name:        "confluence_space",
 		Description: "Confluence Space.",
 		List: &plugin.ListConfig{
-			Hydrate: listSpace,
+			Hydrate:    listSpace,
 			KeyColumns: plugin.OptionalColumns([]string{"key", "type", "status"}),
 		},
 		Get: &plugin.GetConfig{

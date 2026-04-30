@@ -52,7 +52,7 @@ func (t *retryTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 		}
 
 		if resp != nil && resp.Body != nil {
-			resp.Body.Close()
+			_ = resp.Body.Close() //nolint:errcheck
 		}
 	}
 	return resp, err

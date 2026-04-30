@@ -19,7 +19,8 @@
       "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go build *)",
       "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go doc *)",
       "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go test *)",
-      "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go vet *)"
+      "Bash(/Users/ellisvalentiner/.cache/pre-commit/repo1vefyuoo/golangenv-default/.go/bin/go vet *)",
+      "Bash(golangci-lint run *)"
     ]
   }
 }

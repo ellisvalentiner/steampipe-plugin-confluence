@@ -56,7 +56,7 @@ func tableConfluenceSearchContent() *plugin.Table {
 				Name:        "cql",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromQual("cql"),
-				Description: "The Confluence query langauge.",
+				Description: "The Confluence query language.",
 			},
 		},
 	}
