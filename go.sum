@@ -678,8 +678,8 @@ github.com/cncf/xds/go v0.0.0-20220314180256-7f1daf1720fc/go.mod h1:eXthEFrGJvWH
 github.com/cncf/xds/go v0.0.0-20230105202645-06c439db220b/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/cncf/xds/go v0.0.0-20230607035331-e9ce68804cb4/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/ctreminiom/go-atlassian/v2 v2.11.0 h1:FmlOkZ4DVnbfMfSJFScNtOMY2M+CGhDpK2r7/W4OA90=
-github.com/ctreminiom/go-atlassian/v2 v2.11.0/go.mod h1:MlOO4xJqTQeYWQFrlME1EekqHbg3qMsehyrTYgumDz4=
+github.com/ctreminiom/go-atlassian/v2 v2.12.0 h1:qMh5QYNMeJEaSWzeLw4IoNh31Behgd2ymUHbOzDQ2/M=
+github.com/ctreminiom/go-atlassian/v2 v2.12.0/go.mod h1:MlOO4xJqTQeYWQFrlME1EekqHbg3qMsehyrTYgumDz4=
 github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964 h1:y5HC9v93H5EPKqaS1UYVg1uYah5Xf51mBfIoWehClUQ=
 github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964/go.mod h1:Xd9hchkHSWYkEqJwUGisez3G1QY8Ryz0sdWrLPMGjLk=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
